@@ -57,5 +57,11 @@ public class MyUserDao {
             log.error(e.getMessage());
         }
     }
+
+    public MyObject[] getCompareSet(int groupId)
+    {
+        String sql = "SELECT ";
+        return new MyObject[]{new MyObject(), new MyObject()};
+    }
 }
 

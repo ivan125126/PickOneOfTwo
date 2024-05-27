@@ -3,6 +3,8 @@ package com.example.votebe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+
 @Component
 public class MyUser {
     String account = null;
@@ -58,5 +60,9 @@ public class MyUser {
             myUserDao.createAccount(this.account, this.password);
             return "Account created";
         }
+    }
+
+    public MyObject[] getCompareSet(int groupId){
+        return myUserDao.getCompareSet(groupId);
     }
 }

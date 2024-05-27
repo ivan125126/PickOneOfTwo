@@ -11,7 +11,9 @@ public class MyObject
     String description;
     String type;
     List<String> tag = new ArrayList<>() ;
-    int pictureID;
+    int pictureId;
+
+
 
 
 }
