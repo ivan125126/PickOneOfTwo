@@ -1,10 +1,7 @@
 package com.example.votebe;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class MyController
@@ -31,5 +28,10 @@ public class MyController
         this.myUser.account = myUser.account;
         this.myUser.password = myUser.password;
         return this.myUser.createAccount();
+    }
+    @GetMapping("/object/{groupId}")
+    public MyObject[] getCompareSetById(@PathVariable Integer groupId)
+    {
+        return this.myUser.getCompareSet(groupId);
     }
 }

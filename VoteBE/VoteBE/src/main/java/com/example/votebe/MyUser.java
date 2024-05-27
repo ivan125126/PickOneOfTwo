@@ -49,8 +49,7 @@ public class MyUser {
         }
     }
 
-    public String createAccount()
-    {
+    public String createAccount() {
         if(checkAccount())
         {
             return "Account already exist";
@@ -61,8 +60,12 @@ public class MyUser {
             return "Account created";
         }
     }
-
+    public boolean checkGroupId(int groupId)
+    {
+        return myUserDao.isGroupIdExist(groupId);
+    }
     public MyObject[] getCompareSet(int groupId){
-        return myUserDao.getCompareSet(groupId);
+        if(checkGroupId(groupId)) return myUserDao.getCompareSet(groupId);
+        else return null;
     }
 }
