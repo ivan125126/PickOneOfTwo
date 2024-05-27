@@ -3,8 +3,6 @@ package com.example.votebe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
-
 @Component
 public class MyUser {
     String account = null;
@@ -62,7 +60,20 @@ public class MyUser {
         }
     }
 
+    //
     public MyObject[] getCompareSet(int groupId){
         return myUserDao.getCompareSet(groupId);
+    }
+
+    // follow fcn
+    public String follow(MyFollow F) {
+        myUserDao.addFollow(F.account, F.objectId);
+
+        return F.account + " Following " + F.objectId + " ><";
+    }
+
+    public String unFollow(MyFollow F) {
+        myUserDao.unFollow(F.account, F.objectId);
+        return F.account + " Unfollowing " + F.objectId + " TT";
     }
 }

@@ -18,11 +18,12 @@ import javax.security.auth.login.AccountException;
 public class MyUserDao {
 
     private static final Logger log = LoggerFactory.getLogger(MyUserDao.class);
+
     @Autowired
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public boolean isAccountExist(String account) {
-        String sql = "SELECT COUNT(*) FROM USER WHERE account = :account";
+        String sql = "SELECT COUNT(*) FROM user WHERE account = :account";
         Map<String, Object> params = new HashMap<>();
         params.put("account", account);
         try {
@@ -47,7 +48,7 @@ public class MyUserDao {
 
     public void createAccount(String account, String password)
     {
-        String sql = "INSERT INTO USER (account, password) VALUES (:account, :password)";
+        String sql = "INSERT INTO USER VALUES (:account, :password)";
         Map<String, Object> params = new HashMap<>();
         params.put("account", account);
         params.put("password", password);
@@ -63,5 +64,30 @@ public class MyUserDao {
         String sql = "SELECT ";
         return new MyObject[]{new MyObject(), new MyObject()};
     }
+
+    public void addFollow(String account, int objectId){
+        String sql = "INSERT INTO follow VALUES (:account, :objectId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("account", account);
+        params.put("objectId", objectId);
+        try {
+            namedParameterJdbcTemplate.update(sql, params);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void unFollow(String account, int objectId){
+        String sql = "DELETE FROM follow WHERE account = :account AND objectId = :objectId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("account", account);
+        params.put("objectId", objectId);
+        try {
+            namedParameterJdbcTemplate.update(sql, params);
+        } catch (DataAccessException e) {
+            log.error(e.getMessage());
+        }
+    }
 }
+
 
