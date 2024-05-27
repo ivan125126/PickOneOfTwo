@@ -1,5 +1,6 @@
 package com.example.votebe;
 
+import com.mysql.cj.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class MyController
         this.myUser.password = myUser.password;
         return this.myUser.check();
     }
-    @PostMapping("/creataccount")
+    @PostMapping("/createAccount")
     public String creatAccount(@RequestBody MyUser myUser)
     {
         this.myUser.account = myUser.account;
@@ -33,5 +34,15 @@ public class MyController
     public MyObject[] getCompareSetById(@PathVariable Integer groupId)
     {
         return this.myUser.getCompareSet(groupId);
+    }
+
+    @PostMapping("/follow")
+    public String follow(@RequestBody MyFollow myFollow){
+        return this.myUser.follow(myFollow);
+    }
+
+    @PostMapping("/unFollow")
+    public String unFollow(@RequestBody MyFollow myUnFollow){
+        return this.myUser.unFollow(myUnFollow);
     }
 }
