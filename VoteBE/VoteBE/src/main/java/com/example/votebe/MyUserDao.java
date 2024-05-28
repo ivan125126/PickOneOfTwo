@@ -5,7 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -13,8 +17,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-
-import javax.security.auth.login.AccountException;
 
 @Component
 public class MyUserDao {
@@ -98,8 +100,8 @@ public class MyUserDao {
                 MyObject myObject = new MyObject();
                 myObject.id = rs.getInt("id");
                 myObject.name = rs.getString("objectName");
-                myObject.description = rs.getString("objectDescription");
-                myObject.type = rs.getString("category");
+                myObject.description = rs.getString("objectInformation");
+                myObject.type = rs.getString("objectType");
                 myObject.pictureId = rs.getInt("pictureId");
                 return myObject;
             }
@@ -152,6 +154,89 @@ public class MyUserDao {
             log.error(e.getMessage());
         }
     }
+
+    public void recordChoiceResult(MyRecord myRecord){
+        String sql = "INSERT INTO record VALUES (:user, :winner, :loser, :groupId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", myRecord.UserName);
+        params.put("winner", myRecord.winnerId);
+        params.put("loser", myRecord.loserId);
+        params.put("groupId", myRecord.groupId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+    }
+
+    public int addObject(MyObject myObject)
+    {
+        String sql = "INSERT INTO object(objectName, objectInformation, objectType, pictureId) VALUES (:name, :Info, :type, :pictureId)";
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("name", myObject.name)
+                .addValue("Info", myObject.description)
+                .addValue("type", myObject.type)
+                .addValue("pictureId", myObject.pictureId);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params, keyHolder);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+        // Retrieve the generated key
+        Number id = keyHolder.getKey();
+        if (id != null)
+        {
+            return id.intValue();
+        }
+        return 0;
+    }
+    public void addObjectTag(int objectId, int tagId){
+        String sql = "INSERT INTO objecttag VALUES (:objectId, :tagId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+        params.put("tagId", tagId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+    }
+
+    public void addTag(String tag)
+    {
+        String sql = "INSERT INTO tag VALUES (:tag)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tag", tag);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e)
+        {
+            log.error(e.getMessage());
+        }
+    }
+
+    public List<MyTag> getTagList()
+    {
+        String sql = "SELECT * FROM tag";
+
+        return namedParameterJdbcTemplate.query(sql, new RowMapper<MyTag>(){
+            public MyTag mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                MyTag tag = new MyTag();
+                tag.tagId = rs.getInt("tagId");
+                tag.tag = rs.getString("tag");
+                return tag;
+            }
+        });
+
+    }
+
+
 }
 
 
