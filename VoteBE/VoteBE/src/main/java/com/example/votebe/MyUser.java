@@ -3,6 +3,8 @@ package com.example.votebe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class MyUser {
     String account = null;
@@ -78,5 +80,30 @@ public class MyUser {
     public String unFollow(MyFollow F) {
         myUserDao.unFollow(F.account, F.objectId);
         return F.account + " Unfollowing " + F.objectId + " TT";
+    }
+    public void record(MyRecord record){
+        myUserDao.recordChoiceResult(record);
+    }
+
+    public String addObject(MyObject object)
+    {
+        object.id = myUserDao.addObject(object);
+        for(int i = 0; i < object.tag.size(); i++)
+        {
+            addObjectTag(object.id, object.tag.get(i));
+        }
+        return "Object added";
+    }
+    public void addObjectTag(Integer objectId, Integer tagId){
+        myUserDao.addObjectTag(objectId, tagId);
+    }
+
+    public void addTag(String tag)
+    {
+        myUserDao.addTag(tag);
+    }
+    public List<MyTag> getTags()
+    {
+        return myUserDao.getTagList();
     }
 }

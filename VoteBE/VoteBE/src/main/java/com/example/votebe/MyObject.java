@@ -6,12 +6,12 @@ import java.util.List;
 
 public class MyObject
 {
-    int id;
-    String name;
-    String description;
-    String type;
-    List<String> tag = new ArrayList<>() ;
-    int pictureId;
+    public int id;
+    public String name;
+    public String description;
+    public String type;
+    public List<Integer> tag = new ArrayList<>() ;
+    public int pictureId;
 
 
 

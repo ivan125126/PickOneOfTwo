@@ -1,6 +1,6 @@
 package com.example.votebe;
 
-import com.mysql.cj.log.Log;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,4 +45,17 @@ public class MyController
     public String unFollow(@RequestBody MyFollow myUnFollow){
         return this.myUser.unFollow(myUnFollow);
     }
+
+    @PostMapping("/record")
+    public String record(@RequestBody MyRecord myRecord)
+    {
+        this.myUser.record(myRecord);
+        return "success";
+    }
+    @PostMapping("/addObject")
+    public String addObject(@RequestBody MyObject myObject)
+    {
+        return this.myUser.addObject(myObject);
+    }
+    //@PostMapping("/addtag")
 }
