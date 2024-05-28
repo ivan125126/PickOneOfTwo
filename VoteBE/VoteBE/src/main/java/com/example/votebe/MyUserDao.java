@@ -73,7 +73,6 @@ public class MyUserDao {
             log.error(e.getMessage());
         }
     }
-
     public MyObject[] getCompareSet(int groupId)
     {
         int firstObject, secondObject;

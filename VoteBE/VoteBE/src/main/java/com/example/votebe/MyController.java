@@ -45,4 +45,14 @@ public class MyController
     public String unFollow(@RequestBody MyFollow myUnFollow){
         return this.myUser.unFollow(myUnFollow);
     }
+    @PostMapping("/thumbUp")
+    public String thumbsUp(){
+        return "Still thinking 要倒讚嗎";
+    }
+
+    @PostMapping("/groupTheTag")
+    public String groupTheTag() {
+        return"undo";
+    }
+
 }
