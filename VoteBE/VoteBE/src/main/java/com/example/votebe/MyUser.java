@@ -81,6 +81,17 @@ public class MyUser {
         myUserDao.unFollow(F.account, F.objectId);
         return F.account + " Unfollowing " + F.objectId + " TT";
     }
+
+    public String addThumbs(MyThumbs T){
+        myUserDao.updateThumbs(T);
+        return T.user + " press Thumbs " + T.rate + " to " + T.recordId;
+    }
+
+    public String removeThumbs(MyThumbs T){
+        myUserDao.removeThumbs(T);
+        return T.user + " Remove Thumbs to " + T.recordId;
+    }
+
     public void record(MyRecord record){
         myUserDao.recordChoiceResult(record);
     }

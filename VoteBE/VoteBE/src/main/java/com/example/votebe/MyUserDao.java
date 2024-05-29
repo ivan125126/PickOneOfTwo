@@ -143,14 +143,55 @@ public class MyUserDao {
         }
     }
 
-    public void unFollow(String account, int objectId){
-        String sql = "DELETE FROM follow WHERE account = :account AND objectId = :objectId";
+    public void unFollow(String user, int objectId){
+        String sql = "DELETE FROM follow as f WHERE f.user = :user AND objectId = :objectId";
         Map<String, Object> params = new HashMap<>();
-        params.put("account", account);
+        params.put("user", user);
         params.put("objectId", objectId);
         try {
             namedParameterJdbcTemplate.update(sql, params);
         } catch (DataAccessException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void updateThumbs(MyThumbs T){
+        String sql = "INSERT INTO Thumbs VALUES (:user, :recordId, :rate)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", T.user);
+        params.put("recordId", T.recordId);
+        params.put("rate", T.rate);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+    }
+
+    public void removeThumbs(MyThumbs T){
+        String sql = "DELETE FROM Thumbs as t WHERE t.user = :user AND recordId = :recordId";;
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", T.user);
+        params.put("recordId", T.recordId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+    }
+
+    public void thumbsDown(MyThumbs T){
+        String sql = "INSERT INTO Thumbs VALUES (:user, :recordId, :rate)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", T.user);
+        params.put("recordId", T.recordId);
+        params.put("rate", T.rate);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
             log.error(e.getMessage());
         }
     }

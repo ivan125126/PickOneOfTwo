@@ -1,9 +1,8 @@
 package com.example.votebe;
 
-public class MyThumbsUp
+public class MyThumbs
 {
-    public int id;
-    public String userAccount;
+    public String user;
     public int recordId;
     public boolean rate;
 
