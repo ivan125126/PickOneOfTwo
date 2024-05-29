@@ -12,6 +12,7 @@ public class MyObject
     public String type;
     public List<String> tag = new ArrayList<>() ;
     public String imageURL;
+    public Integer thumbs ;
 
 
 

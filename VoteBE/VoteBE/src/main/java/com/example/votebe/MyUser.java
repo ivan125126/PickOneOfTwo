@@ -85,12 +85,12 @@ public class MyUser {
 
     public String addThumbs(MyThumbs T){
         myUserDao.updateThumbs(T);
-        return T.user + " press Thumbs " + T.rate + " to " + T.recordId;
+        return T.user + " press Thumbs " + T.rate + " to " + T.objectId;
     }
 
     public String removeThumbs(MyThumbs T){
         myUserDao.removeThumbs(T);
-        return T.user + " Remove Thumbs to " + T.recordId;
+        return T.user + " Remove Thumbs to " + T.objectId;
     }
 
     public void record(MyRecord record){
@@ -122,5 +122,10 @@ public class MyUser {
     public MyObject getObjectById(Integer objectId)
     {
         return myUserDao.getObjectById(objectId);
+    }
+    public Integer getUserThumb(String user, Integer objectId){
+        Boolean result = myUserDao.getUserThumb(user, objectId);
+        if(result == null) return 0;
+        else return result? 1 : -1;
     }
 }

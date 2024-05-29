@@ -4,6 +4,9 @@ package com.example.votebe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+
 @RestController
 public class MyController
 {
@@ -80,6 +83,17 @@ public class MyController
     @PostMapping("/addtag")
     public Integer addTag(@RequestBody MyTag tag){
         return myUser.addTag(tag.tag);
+    }
+
+    @PostMapping("/tags")
+    public List<MyTag> getTags(){
+        return myUser.getTags();
+    }
+
+    @PostMapping("/userThumbs")
+    public Integer getUserThumbs(MyThumbs myThumbs)
+    {
+        return myUser.getUserThumb(myThumbs.user, myThumbs.objectId);
     }
 
 

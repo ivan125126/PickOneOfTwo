@@ -171,7 +171,7 @@ public class MyUserDao {
         String sql = "INSERT INTO Thumbs VALUES (:user, :recordId, :rate)";
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
-        params.put("recordId", T.recordId);
+        params.put("recordId", T.objectId);
         params.put("rate", T.rate);
         try
         {
@@ -185,7 +185,7 @@ public class MyUserDao {
         String sql = "DELETE FROM Thumbs as t WHERE t.user = :user AND recordId = :recordId";;
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
-        params.put("recordId", T.recordId);
+        params.put("recordId", T.objectId);
         try
         {
             namedParameterJdbcTemplate.update(sql, params);
@@ -198,7 +198,7 @@ public class MyUserDao {
         String sql = "INSERT INTO Thumbs VALUES (:user, :recordId, :rate)";
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
-        params.put("recordId", T.recordId);
+        params.put("recordId", T.objectId);
         params.put("rate", T.rate);
         try
         {
@@ -209,12 +209,12 @@ public class MyUserDao {
     }
 
     public void recordChoiceResult(MyRecord myRecord){
-        String sql = "INSERT INTO record VALUES (:user, :winner, :loser, :groupId)";
+        String sql = "INSERT INTO record(user, winnerId, loserId, groupId) VALUES (:user, :winner, :loser, :groupId)";
         Map<String, Object> params = new HashMap<>();
         params.put("user", myRecord.UserName);
         params.put("winner", myRecord.winnerId);
         params.put("loser", myRecord.loserId);
-        params.put("groupId", myRecord.groupId);
+        params.put("groupId", getGroupId(myRecord.group));
         try
         {
             namedParameterJdbcTemplate.update(sql, params);
@@ -267,6 +267,7 @@ public class MyUserDao {
         return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
     }
 
+
     public void addTag(String tag)
     {
         String sql = "INSERT INTO tag VALUES (:tag)";
@@ -295,6 +296,14 @@ public class MyUserDao {
             }
         });
 
+    }
+
+    public Boolean getUserThumb(String user, int objectId){
+        String sql = "SELECT rate FROM thumbs WHERE user = :user AND objectId = :objectId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", user);
+        params.put("objectId", objectId);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, Boolean.class);
     }
 
 
