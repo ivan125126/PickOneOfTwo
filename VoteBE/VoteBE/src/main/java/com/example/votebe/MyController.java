@@ -45,16 +45,21 @@ public class MyController
     public String unFollow(@RequestBody MyFollow myUnFollow){
         return this.myUser.unFollow(myUnFollow);
     }
-    @PostMapping("/thumbUp")
-    public String thumbsUp(){
-        return "Still thinking 要倒讚嗎";
+
+    @PostMapping("/updateThumbs")
+    public String updateThumbs(@RequestBody MyThumbs myThumbs){
+        return this.myUser.addThumbs(myThumbs);
+    }
+
+    @PostMapping("/removeThumbs")
+    public String removeThumbs(@RequestBody MyThumbs myThumbs){
+        return this.myUser.removeThumbs(myThumbs);
     }
 
     @PostMapping("/groupTheTag")
     public String groupTheTag() {
         return"undo";
     }
-
 
     @PostMapping("/record")
     public String record(@RequestBody MyRecord myRecord)
@@ -77,4 +82,10 @@ public class MyController
         return myUser.addTag(tag.tag);
     }
 
+
+    // undo
+    // winrate calculte
+    // @PostMapping("/addTag")
+    // @PostMapping("/thumbNotify")
+    // build tag group
 }
