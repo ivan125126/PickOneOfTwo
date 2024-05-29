@@ -10,8 +10,8 @@ public class MyObject
     public String name;
     public String description;
     public String type;
-    public List<Integer> tag = new ArrayList<>() ;
-    public int pictureId;
+    public List<String> tag = new ArrayList<>() ;
+    public String imageURL;
 
 
 

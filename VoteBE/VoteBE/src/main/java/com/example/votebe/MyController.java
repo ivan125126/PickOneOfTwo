@@ -30,10 +30,10 @@ public class MyController
         this.myUser.password = myUser.password;
         return this.myUser.createAccount();
     }
-    @GetMapping("/object/{groupId}")
-    public MyObject[] getCompareSetById(@PathVariable Integer groupId)
+    @PostMapping("/objectSet/{group}")
+    public MyObject[] getCompareSetById(@PathVariable String group)
     {
-        return this.myUser.getCompareSet(groupId);
+        return this.myUser.getCompareSet(group);
     }
 
     @PostMapping("/follow")
@@ -67,5 +67,14 @@ public class MyController
     {
         return this.myUser.addObject(myObject);
     }
-    //@PostMapping("/addtag")
+    @GetMapping("/object/{objectId}")
+    public MyObject getObject(@PathVariable Integer objectId)
+    {
+        return myUser.getObjectById(objectId);
+    }
+    @PostMapping("/addtag")
+    public Integer addTag(@RequestBody MyTag tag){
+        return myUser.addTag(tag.tag);
+    }
+
 }

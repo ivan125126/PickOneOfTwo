@@ -75,6 +75,18 @@ public class MyUserDao {
             log.error(e.getMessage());
         }
     }
+    public Integer getGroupId(String groupName){
+        String sql = "SELECT id FROM myGroup WHERE groupName = :groupName";
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupName", groupName);
+        try
+        {
+            return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+        }catch (DataAccessException e) {
+            log.error(e.getMessage());
+        }
+        return -1;
+    }
     public MyObject[] getCompareSet(int groupId)
     {
         int firstObject, secondObject;
@@ -84,13 +96,13 @@ public class MyUserDao {
         do
         {
             secondObject = objectsId.get(new Random().nextInt(objectsId.size()));
-        }while (firstObject != secondObject);
+        }while (firstObject == secondObject);
         return new MyObject[] {getObjectById(firstObject), getObjectById(secondObject)};
     }
     public MyObject getObjectById(int id)
     {
-        String sql = "SELECT *" +
-                "FROM object o" +
+        String sql = "SELECT * " +
+                "FROM object o " +
                 "WHERE o.id = :id";
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
@@ -102,7 +114,7 @@ public class MyUserDao {
                 myObject.name = rs.getString("objectName");
                 myObject.description = rs.getString("objectInformation");
                 myObject.type = rs.getString("objectType");
-                myObject.pictureId = rs.getInt("pictureId");
+                myObject.imageURL = rs.getString("imageURL");
                 return myObject;
             }
         }).get(0);
@@ -172,12 +184,12 @@ public class MyUserDao {
 
     public int addObject(MyObject myObject)
     {
-        String sql = "INSERT INTO object(objectName, objectInformation, objectType, pictureId) VALUES (:name, :Info, :type, :pictureId)";
+        String sql = "INSERT INTO object(objectName, objectInformation, objectType, imageURL) VALUES (:name, :Info, :type, :imageURL)";
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("name", myObject.name)
                 .addValue("Info", myObject.description)
                 .addValue("type", myObject.type)
-                .addValue("pictureId", myObject.pictureId);
+                .addValue("imageURL", myObject.imageURL);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try
         {
@@ -193,7 +205,9 @@ public class MyUserDao {
         }
         return 0;
     }
-    public void addObjectTag(int objectId, int tagId){
+    //要把tagId(Int)改tag(String)
+    public void addObjectTag(int objectId, String tag){
+        Integer tagId = getTagId(tag);
         String sql = "INSERT INTO objecttag VALUES (:objectId, :tagId)";
         Map<String, Object> params = new HashMap<>();
         params.put("objectId", objectId);
@@ -204,6 +218,12 @@ public class MyUserDao {
         }catch (DataAccessException e){
             log.error(e.getMessage());
         }
+    }
+    public Integer getTagId(String tag){
+        String sql = "SELECT tagId FROM tagGroup WHERE tag = :tag";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tag", tag);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
     }
 
     public void addTag(String tag)

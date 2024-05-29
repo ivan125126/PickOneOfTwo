@@ -65,7 +65,8 @@ public class MyUser {
         return myUserDao.isGroupIdExist(groupId);
     }
 
-    public MyObject[] getCompareSet(int groupId){
+    public MyObject[] getCompareSet(String group){
+        Integer groupId = myUserDao.getGroupId(group);
         if(checkGroupId(groupId)) return myUserDao.getCompareSet(groupId);
         else return null;
     }
@@ -94,16 +95,21 @@ public class MyUser {
         }
         return "Object added";
     }
-    public void addObjectTag(Integer objectId, Integer tagId){
-        myUserDao.addObjectTag(objectId, tagId);
+    public void addObjectTag(Integer objectId, String tag){
+        myUserDao.addObjectTag(objectId, tag);
     }
 
-    public void addTag(String tag)
+    public Integer addTag(String tag)
     {
         myUserDao.addTag(tag);
+        return myUserDao.getTagId(tag);
     }
     public List<MyTag> getTags()
     {
         return myUserDao.getTagList();
+    }
+    public MyObject getObjectById(Integer objectId)
+    {
+        return myUserDao.getObjectById(objectId);
     }
 }
