@@ -18,6 +18,8 @@ import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.swing.plaf.PanelUI;
+
 @Component
 public class MyUserDao {
 
@@ -63,6 +65,14 @@ public class MyUserDao {
             return false;
         }
     }
+
+    public void addTagToGroup(int groupId, int tagId){
+        String sql = "INSERT INTO taggroup (groupId, tagId) VALUES (:groupId, :tagId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupId", groupId);
+        params.put("tagId", tagId);
+        namedParameterJdbcTemplate.update(sql, params);
+    }
     public void createAccount(String account, String password)
     {
         String sql = "INSERT INTO USER VALUES (:account, :password)";
@@ -90,7 +100,7 @@ public class MyUserDao {
     public MyObject[] getCompareSet(int groupId)
     {
         int firstObject, secondObject;
-        List<Integer> objectsId = findObjectsWithAllTagsInGroup(groupId);
+        List<Integer> objectsId = getObjectsWithAllTagsInGroup(groupId);
         if (objectsId.isEmpty()) return null;
         firstObject = objectsId.get(new Random().nextInt(objectsId.size()));
         do
@@ -120,7 +130,8 @@ public class MyUserDao {
         }).get(0);
     }
 
-    public List<Integer> findObjectsWithAllTagsInGroup(int groupId) {
+    public List<Integer> getObjectsWithAllTagsInGroup(int groupId)
+    {
         String sql = "SELECT ot.objId " +
                 "FROM objectTag ot " +
                 "JOIN tagGroup tg ON ot.tagId = tg.tagId " +
@@ -141,6 +152,55 @@ public class MyUserDao {
                 return rs.getInt("objId");
             }
         });
+    }
+
+    public List<Integer> getFollowingObjects(String user)
+    {
+        String sql = "SELECT object FROM follow WHERE user = :user";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", user);
+        return namedParameterJdbcTemplate.query(sql, params, new  RowMapper<Integer>() {
+            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                return rs.getInt("objId");
+            }
+        });
+
+
+    }
+    public Integer addGroup(String groupName){
+        String sql = "INSERT INTO myGroup(groupName) VALUES (:groupName)";
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("groupName", groupName);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params, keyHolder);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+        // Retrieve the generated key
+        Number id = keyHolder.getKey();
+        if (id != null)
+        {
+            return id.intValue();
+        }
+        return 0;
+    }
+
+    public Integer creatGroupObject(Integer objectId, Integer groupId){
+        String sql = "INSERT INTO myGroup(objectId, groupId, winGames, games) VALUES (:objectId, :groupId, 0, 0)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+        params.put("groupId", groupId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+            return 1;
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+            return 0;
+        }
     }
 
     public void addFollow(String account, int objectId){
@@ -167,7 +227,34 @@ public class MyUserDao {
         }
     }
 
+    public Boolean checkThumbs(MyThumbs myThumbs)
+    {
+        String sql = "SELECT COUNT(*) FROM thumbs WHERE thumbs.user = :user AND objectId = :objectId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", myThumbs.user);
+        params.put("objectId", myThumbs.objectId);
+        try
+        {
+            Integer count = namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            return count != null && count > 0;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+    }
     public void updateThumbs(MyThumbs T){
+        String sql = "UPDATE Thumbs SET Thumbs.rate = :rate WHERE user = :user AND objectId = :objectId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", T.user);
+        params.put("recordId", T.objectId);
+        params.put("rate", T.rate);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+    }
+    public void addThumbs(MyThumbs T){
         String sql = "INSERT INTO Thumbs VALUES (:user, :recordId, :rate)";
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
@@ -246,7 +333,7 @@ public class MyUserDao {
         }
         return 0;
     }
-    //要把tagId(Int)改tag(String)
+    //插入新的object與tag的關聯
     public void addObjectTag(int objectId, String tag){
         Integer tagId = getTagId(tag);
         String sql = "INSERT INTO objecttag VALUES (:objectId, :tagId)";
@@ -290,8 +377,8 @@ public class MyUserDao {
             public MyTag mapRow(ResultSet rs, int rowNum) throws SQLException
             {
                 MyTag tag = new MyTag();
-                tag.tagId = rs.getInt("tagId");
-                tag.tag = rs.getString("tag");
+                tag.tagId = rs.getInt("id");
+                tag.tag = rs.getString("name");
                 return tag;
             }
         });
@@ -299,7 +386,7 @@ public class MyUserDao {
     }
 
     public Boolean getUserThumb(String user, int objectId){
-        String sql = "SELECT rate FROM thumbs WHERE user = :user AND objectId = :objectId";
+        String sql = "SELECT rate FROM thumbs WHERE thumbs.user = :user AND objectId = :objectId";
         Map<String, Object> params = new HashMap<>();
         params.put("user", user);
         params.put("objectId", objectId);

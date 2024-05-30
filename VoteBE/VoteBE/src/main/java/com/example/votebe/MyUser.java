@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class MyUser {
@@ -13,18 +14,6 @@ public class MyUser {
     @Autowired
     private MyUserDao myUserDao;
 
-    public String getAccount() {
-        return account;
-    }
-    public void setAccount(String account) {
-        this.account = account;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
     public boolean checkPassword() {
         return myUserDao.isPasswordCorrect(this.account, this.password);
     }
@@ -67,7 +56,13 @@ public class MyUser {
 
     public MyObject[] getCompareSet(String group){
         Integer groupId = myUserDao.getGroupId(group);
-        if(checkGroupId(groupId)) return myUserDao.getCompareSet(groupId);
+        if(checkGroupId(groupId)) {
+            //不確定KneLu有沒有要這個功能所以做到一半
+            MyObject[] objectSet = myUserDao.getCompareSet(groupId);
+            objectSet[0].thumbs = new Random().nextInt(2)-1;//要改這裡
+            objectSet[1].thumbs = new Random().nextInt(2)-1;
+            return objectSet;
+        }
         else return null;
     }
 
@@ -84,8 +79,14 @@ public class MyUser {
     }
 
     public String addThumbs(MyThumbs T){
-        myUserDao.updateThumbs(T);
-        return T.user + " press Thumbs " + T.rate + " to " + T.objectId;
+        if(T.newRate == 0){
+            return removeThumbs(T);
+        }else {
+            T.rate = T.newRate == 1;
+            if(myUserDao.checkThumbs(T)) myUserDao.updateThumbs(T);
+            else myUserDao.addThumbs(T);
+            return T.user + " press Thumbs " + T.rate + " to " + T.objectId;
+        }
     }
 
     public String removeThumbs(MyThumbs T){
@@ -123,9 +124,27 @@ public class MyUser {
     {
         return myUserDao.getObjectById(objectId);
     }
-    public Integer getUserThumb(String user, Integer objectId){
-        Boolean result = myUserDao.getUserThumb(user, objectId);
-        if(result == null) return 0;
-        else return result? 1 : -1;
+    public Integer getUserThumb(MyThumbs myThumbs){
+        if(myUserDao.checkThumbs(myThumbs))
+        {
+            Boolean result = myUserDao.getUserThumb(myThumbs.user, myThumbs.objectId);
+            if (result == null) return 0;
+            else return result ? 1 : -1;
+        }
+        else return 0;
     }
+    public Integer addGroup(String group, List<String> tags){
+        Integer groupId = myUserDao.addGroup(group);
+        for (String tag : tags)
+        {
+            myUserDao.addTagToGroup(groupId, myUserDao.getTagId(tag));
+        }
+        List<Integer> objectsId = myUserDao.getObjectsWithAllTagsInGroup(groupId);
+        for (Integer integer : objectsId)
+        {
+            myUserDao.creatGroupObject(integer, groupId);
+        }
+        return groupId;
+    }
+
 }
