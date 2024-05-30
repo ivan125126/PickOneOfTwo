@@ -245,7 +245,7 @@ public class MyUserDao {
         String sql = "UPDATE Thumbs SET Thumbs.rate = :rate WHERE user = :user AND objectId = :objectId";
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
-        params.put("recordId", T.objectId);
+        params.put("objectId", T.objectId);
         params.put("rate", T.rate);
         try
         {
@@ -255,10 +255,10 @@ public class MyUserDao {
         }
     }
     public void addThumbs(MyThumbs T){
-        String sql = "INSERT INTO Thumbs VALUES (:user, :recordId, :rate)";
+        String sql = "INSERT INTO Thumbs(user, objectId, rate) VALUES (:user, :objectId, :rate)";
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
-        params.put("recordId", T.objectId);
+        params.put("objectId", T.objectId);
         params.put("rate", T.rate);
         try
         {
@@ -269,10 +269,10 @@ public class MyUserDao {
     }
 
     public void removeThumbs(MyThumbs T){
-        String sql = "DELETE FROM Thumbs as t WHERE t.user = :user AND recordId = :recordId";;
+        String sql = "DELETE FROM Thumbs as t WHERE t.user = :user AND objectId = :objectId";;
         Map<String, Object> params = new HashMap<>();
         params.put("user", T.user);
-        params.put("recordId", T.objectId);
+        params.put("objectId", T.objectId);
         try
         {
             namedParameterJdbcTemplate.update(sql, params);
@@ -368,7 +368,17 @@ public class MyUserDao {
             log.error(e.getMessage());
         }
     }
-
+    public Boolean isTagExist(String tag){
+        String sql = "SELECT COUNT(*) FROM user WHERE name = :tagName";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagName", tag);
+        try {
+            Integer count = namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            return count != null && count > 0;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+    }
     public List<MyTag> getTagList()
     {
         String sql = "SELECT * FROM tag";

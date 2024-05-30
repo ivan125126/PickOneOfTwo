@@ -113,8 +113,11 @@ public class MyUser {
 
     public Integer addTag(String tag)
     {
-        myUserDao.addTag(tag);
+        if(!checkTag(tag)) myUserDao.addTag(tag);
         return myUserDao.getTagId(tag);
+    }
+    public Boolean checkTag(String tag){
+        return myUserDao.isTagExist(tag);
     }
     public List<MyTag> getTags()
     {
