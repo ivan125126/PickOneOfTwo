@@ -7,4 +7,5 @@ public class MyRecord
     public int winnerId;
     public int loserId;
     public String group;
+    public int groupId;
 }

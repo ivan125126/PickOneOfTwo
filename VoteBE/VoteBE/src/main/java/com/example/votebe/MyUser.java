@@ -95,7 +95,8 @@ public class MyUser {
     }
 
     public void record(MyRecord record){
-        myUserDao.recordChoiceResult(record);
+        myUserDao.recordVoteResult(record);
+        myUserDao.updateGroupObject(record);
     }
 
     public String addObject(MyObject object)

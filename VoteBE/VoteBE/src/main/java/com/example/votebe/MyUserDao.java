@@ -18,7 +18,7 @@ import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.swing.plaf.PanelUI;
+import javax.xml.transform.Result;
 
 @Component
 public class MyUserDao {
@@ -29,7 +29,7 @@ public class MyUserDao {
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public boolean isAccountExist(String account) {
-        String sql = "SELECT COUNT(*) FROM user WHERE account = :account";
+            String sql = "SELECT COUNT(*) FROM user WHERE account = :account";
         Map<String, Object> params = new HashMap<>();
         params.put("account", account);
         try {
@@ -295,8 +295,11 @@ public class MyUserDao {
         }
     }
 
-    public void recordChoiceResult(MyRecord myRecord){
-        String sql = "INSERT INTO record(user, winnerId, loserId, groupId) VALUES (:user, :winner, :loser, :groupId)";
+    public void recordVoteResult(MyRecord myRecord){
+
+        // Put result into table record
+        String sql = "INSERT INTO record (user, winnerId, loserId, groupId) VALUES (:user, :winner, :loser, :groupId)";
+
         Map<String, Object> params = new HashMap<>();
         params.put("user", myRecord.UserName);
         params.put("winner", myRecord.winnerId);
@@ -308,6 +311,57 @@ public class MyUserDao {
         }catch (DataAccessException e){
             log.error(e.getMessage());
         }
+    }
+
+    // update the result into Table groupObject
+    public void updateGroupObject(MyRecord myRecord){
+        // update the new value to the group_object
+
+        // winner
+        String sql = "UPDATE groupobject SET winGames = :winGames, games = :games WHERE objectId = :winnerId AND groupId = :gId";
+        // get the winGames and games
+        List<Integer> winObj = getGroupObject(myRecord.winnerId, myRecord.groupId);
+        Map<String, Object> paramsWin = new HashMap<>();
+        paramsWin.put("winGames", winObj.get(0)+1);
+        paramsWin.put("games", winObj.get(1)+1);
+        paramsWin.put("winnerId", myRecord.winnerId);
+        paramsWin.put("gId", myRecord.groupId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, paramsWin);
+        }catch (DataAccessException e) {
+            log.error("Error update winner", e.getMessage());
+        }
+
+        // loser
+        // update the new value to the group_object
+        String sql1 = "UPDATE groupobject SET games = :games WHERE objectId = :loserId AND groupId = :gId";
+        List<Integer> loseObj = getGroupObject(myRecord.loserId, myRecord.groupId);
+        Map<String, Object> paramsLose = new HashMap<>();
+        paramsLose.put("games", loseObj.get(1)+1);
+        paramsLose.put("loserId", myRecord.loserId);
+        paramsLose.put("gId", myRecord.groupId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql1, paramsLose);
+        }catch (DataAccessException e){
+            log.error("Error update loser", e.getMessage());
+        }
+    }
+
+    //perhaps return an object will better
+    public List<Integer> getGroupObject(int objId, int gId){
+        // use to static winGames and games of a object in group
+        String sql = "SELECT winGames, games FROM groupobject WHERE objectId = :objectId AND groupId = :groupId";
+        Map<String, Object> params = new HashMap<>(); // MapSqlParameterSource params = new MapSqlParameterSource();
+        params.put("objectId", objId);
+        params.put("groupId", gId);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, new RowMapper<List<Integer>>() {
+            @Override
+            public List<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return Arrays.asList(rs.getInt("winGames"), rs.getInt("games"));
+            }
+        });
     }
 
     public int addObject(MyObject myObject)
@@ -392,7 +446,9 @@ public class MyUserDao {
                 return tag;
             }
         });
-
+    }
+    public int winRateCounter(){
+        return 1;
     }
 
     public Boolean getUserThumb(String user, int objectId){
