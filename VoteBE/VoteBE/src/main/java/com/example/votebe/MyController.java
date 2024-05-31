@@ -69,8 +69,8 @@ public class MyController
     @PostMapping("/record")
     public String record(@RequestBody MyRecord myRecord)
     {
-        this.myUser.record(myRecord);
-        return "success";
+        return this.myUser.record(myRecord);
+
     }
     //新增物件，傳入name(String), description(String), type(string), tag(List<String>), imageURL(String)
     @PostMapping("/addObject")

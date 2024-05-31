@@ -65,6 +65,21 @@ public class MyUserDao {
             return false;
         }
     }
+    public boolean isRecordExist(MyRecord record){
+        String sql = "SELECT COUNT(*) FROM record WHERE record.user = :user AND ((winnerId = :object1 AND loserId = :object2) OR (winnerId = :object2 AND loserId = :object1)) AND groupId = :groupId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", record.UserName);
+        params.put("object1", record.winnerId);
+        params.put("object2", record.loserId);
+        params.put("groupId", getGroupId(record.group));
+        try
+        {
+            Integer count = namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            return count != null && count > 0;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+    }
 
     public void addTagToGroup(int groupId, int tagId){
         String sql = "INSERT INTO taggroup (groupId, tagId) VALUES (:groupId, :tagId)";
@@ -295,8 +310,22 @@ public class MyUserDao {
         }
     }
 
-    public void recordChoiceResult(MyRecord myRecord){
+    public void addChoiceResult(MyRecord myRecord){
         String sql = "INSERT INTO record(user, winnerId, loserId, groupId) VALUES (:user, :winner, :loser, :groupId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", myRecord.UserName);
+        params.put("winner", myRecord.winnerId);
+        params.put("loser", myRecord.loserId);
+        params.put("groupId", getGroupId(myRecord.group));
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+    }
+    public void updateChoiceResult(MyRecord myRecord){
+        String sql = "UPDATE record SET winnerId = :winner, loserId = :loser WHERE user = :user AND groupId = :groupId AND winnerId = :loser AND loserId = :winner";
         Map<String, Object> params = new HashMap<>();
         params.put("user", myRecord.UserName);
         params.put("winner", myRecord.winnerId);

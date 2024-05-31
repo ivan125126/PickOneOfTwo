@@ -94,10 +94,19 @@ public class MyUser {
         return T.user + " Remove Thumbs to " + T.objectId;
     }
 
-    public void record(MyRecord record){
-        myUserDao.recordChoiceResult(record);
+    public String record(MyRecord record){
+        if(checkRecord(record)) {
+            myUserDao.updateChoiceResult(record);
+            return "update";
+        }
+        else{
+            myUserDao.addChoiceResult(record);
+            return "add";
+        }
     }
-
+    public boolean checkRecord(MyRecord record){
+        return myUserDao.isRecordExist(record);
+    }
     public String addObject(MyObject object)
     {
         object.id = myUserDao.addObject(object);
