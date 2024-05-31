@@ -97,10 +97,12 @@ public class MyUser {
     public String record(MyRecord record){
         if(checkRecord(record)) {
             myUserDao.updateChoiceResult(record);
+            // undo 
             return "update";
         }
         else{
             myUserDao.addChoiceResult(record);
+            myUserDao.updateGroupObject(record);
             return "add";
         }
     }
