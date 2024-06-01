@@ -14,7 +14,4 @@ public class MyObject
     public String imageURL;
     public Integer thumbs ;
 
-
-
-
 }

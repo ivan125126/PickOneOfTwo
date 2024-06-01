@@ -161,4 +161,22 @@ public class MyUser {
         return groupId;
     }
 
+    public List<MyObject> getObjectsByName(String objectName)
+    {
+        List<MyObject> objects = myUserDao.getObjectsByName(objectName);
+        for(MyObject object : objects){
+            object.tag =myUserDao.getTagsOfObject(object.id) ;
+        }
+        return objects;
+    }
+    public List<MyTag> getTagsOfGroup(String groupName)
+    {
+        return myUserDao.getTagsOfGroup(myUserDao.getGroupId(groupName));
+    }
+
+
+    public List<String> getGroups()
+    {
+        return myUserDao.getGroups();
+    }
 }

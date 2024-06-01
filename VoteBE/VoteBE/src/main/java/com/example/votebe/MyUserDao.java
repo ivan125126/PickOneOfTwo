@@ -168,6 +168,73 @@ public class MyUserDao {
             }
         });
     }
+    public List<Integer> getObjectsIdByTag(Integer tagId)
+    {
+        String sql = "SELECT ot.objId " +
+                "FROM objectTag ot " +
+                "WHERE ot.tagId = :tagId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("tagId", tagId);
+
+        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<Integer>() {
+            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                return rs.getInt("objId");
+            }
+        });
+    }
+    public List<Integer> getTagsIdOfObject(Integer objectId)
+    {
+        String sql = "SELECT ot.tagId " +
+                "FROM objectTag ot " +
+                "WHERE ot.objectId = :objectId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+
+        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<Integer>() {
+            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                return rs.getInt("tagId");
+            }
+        });
+    }
+    public List<String> getTagsOfObject(Integer objectId)
+    {
+        String sql = "SELECT t.name " +
+                "FROM objectTag ot JOIN tag t ON ot.tagId = t.id " +
+                "WHERE ot.objId = :objectId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+
+        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<String>() {
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                return rs.getString("name");
+            }
+        });
+    }
+    public List<MyObject> getObjectsByName(String name)
+    {
+        String sql = "SELECT * " +
+                "FROM object " +
+                "WHERE objectName = :objName ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objName", name);
+
+        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<MyObject>() {
+            public MyObject mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                MyObject myObject = new MyObject();
+                myObject.id = rs.getInt("id");
+                myObject.name = rs.getString("objectName");
+                myObject.description = rs.getString("objectInformation");
+                myObject.type = rs.getString("objectType");
+                myObject.imageURL = rs.getString("imageURL");
+                return myObject;
+            }
+        });
+    }
+
 
     public List<Integer> getFollowingObjects(String user)
     {
@@ -180,8 +247,6 @@ public class MyUserDao {
                 return rs.getInt("objId");
             }
         });
-
-
     }
     public Integer addGroup(String groupName){
         String sql = "INSERT INTO myGroup(groupName) VALUES (:groupName)";
@@ -204,7 +269,7 @@ public class MyUserDao {
     }
 
     public Integer creatGroupObject(Integer objectId, Integer groupId){
-        String sql = "INSERT INTO myGroup(objectId, groupId, winGames, games) VALUES (:objectId, :groupId, 0, 0)";
+        String sql = "INSERT INTO groupObject(objectId, groupId, winGames, games) VALUES (:objectId, :groupId, 0, 0)";
         Map<String, Object> params = new HashMap<>();
         params.put("objectId", objectId);
         params.put("groupId", groupId);
@@ -378,7 +443,7 @@ public class MyUserDao {
 
     //perhaps return an object will better
     public List<Integer> getGroupObject(int objId, int gId){
-        // use to static winGames and games of a object in group
+        // use to static winGames and games of an object in group
         String sql = "SELECT winGames, games FROM groupobject WHERE objectId = :objectId AND groupId = :groupId";
         Map<String, Object> params = new HashMap<>(); // MapSqlParameterSource params = new MapSqlParameterSource();
         params.put("objectId", objId);
@@ -429,16 +494,23 @@ public class MyUserDao {
         }
     }
     public Integer getTagId(String tag){
-        String sql = "SELECT tagId FROM tagGroup WHERE tag = :tag";
+        String sql = "SELECT id FROM tag WHERE name = :tag";
         Map<String, Object> params = new HashMap<>();
         params.put("tag", tag);
         return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
     }
+    public String getTagById(Integer tagId){
+        String sql = "SELECT name FROM tag WHERE id = :id";
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", tagId);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, String.class);
+    }
+
 
 
     public void addTag(String tag)
     {
-        String sql = "INSERT INTO tag VALUES (:tag)";
+        String sql = "INSERT INTO tag (name) VALUES (:tag)";
         Map<String, Object> params = new HashMap<>();
         params.put("tag", tag);
         try
@@ -450,7 +522,7 @@ public class MyUserDao {
         }
     }
     public Boolean isTagExist(String tag){
-        String sql = "SELECT COUNT(*) FROM user WHERE name = :tagName";
+        String sql = "SELECT COUNT(*) FROM tag WHERE name = :tagName";
         Map<String, Object> params = new HashMap<>();
         params.put("tagName", tag);
         try {
@@ -487,6 +559,39 @@ public class MyUserDao {
     }
 
 
+    public List<String> getGroups()
+    {
+        String sql = "SELECT groupName FROM mygroup";
+
+        return namedParameterJdbcTemplate.query(sql, new RowMapper<String>(){
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                return rs.getString("groupName");
+            }
+        });
+    }
+
+    public List<MyTag> getTagsOfGroup(Integer groupId)
+    {
+        String sql = "SELECT tag.id,tag.name FROM tag JOIN taggroup ON tag.id = taggroup.tagId WHERE tagGroup.groupId = :groupId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupId", groupId);
+        try
+        {
+            return namedParameterJdbcTemplate.query(sql, params, new RowMapper<MyTag>(){
+                public MyTag mapRow(ResultSet rs, int rowNum) throws SQLException
+                {
+                    MyTag tag = new MyTag();
+                    tag.tag = rs.getString("name");
+                    tag.tagId = rs.getInt("id");
+                    return tag;
+                }
+            });
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+        }
+        return null;
+    }
 }
 
 
