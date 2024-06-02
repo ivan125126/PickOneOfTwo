@@ -105,11 +105,11 @@ public class MyController
     public Integer addGroup(@RequestBody MyTagGroup myTagGroup){
         return myUser.addGroup(myTagGroup.group, myTagGroup.tags);
     }
-
+    @PostMapping("/winRate/{objectId}/{gruopId}")
+    public Double winRate(@PathVariable int objId, int gId){
+        return myUser.calWinRate(objId, gId);
+    }
 
     // undo
-    // winrate calculte
-    // @PostMapping("/addTag")
     // @PostMapping("/thumbNotify")
-    // build tag group
 }

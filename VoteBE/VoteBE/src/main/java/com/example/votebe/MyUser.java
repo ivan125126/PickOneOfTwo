@@ -97,17 +97,22 @@ public class MyUser {
     public String record(MyRecord record){
         if(checkRecord(record)) {
             myUserDao.updateChoiceResult(record);
+            myUserDao.updateGroupObject_reVote(record);
             // undo 
             return "update";
         }
         else{
             myUserDao.addChoiceResult(record);
-            myUserDao.updateGroupObject(record);
+            myUserDao.updateGroupObject_new(record);
             return "add";
         }
     }
     public boolean checkRecord(MyRecord record){
         return myUserDao.isRecordExist(record);
+    }
+
+    public double calWinRate(int objId, int gId){
+        return myUserDao.winRateCounter(objId, gId);
     }
     public String addObject(MyObject object)
     {
