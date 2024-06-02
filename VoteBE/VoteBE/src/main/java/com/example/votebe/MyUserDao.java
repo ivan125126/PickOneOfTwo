@@ -405,17 +405,36 @@ public class MyUserDao {
         }
     }
 
+    public MyGroupObject getGroupObject(int objId, int gId){
+        String sql = "SELECT * FROM groupobject WHERE objectId = :objId, groupId = :gId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objId", objId);
+        params.put("gId", gId);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, new RowMapper<MyGroupObject>(){
+            public MyGroupObject mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                MyGroupObject GO = new MyGroupObject();
+                GO.objId = rs.getInt("objectId");
+                GO.gId = rs.getInt("groupId");
+                GO.winGames = rs.getInt("winGames");
+                GO.games = rs.getInt("games");
+                GO.rankInGroup = rs.getInt("rankInGroup");
+                return GO;
+            }
+        });
+    }
+
     // update the result into Table groupObject
-    public void updateGroupObject(MyRecord myRecord){
+    public void updateGroupObject_new(MyRecord myRecord){
         // update the new value to the group_object
 
         // winner
         String sql = "UPDATE groupobject SET winGames = :winGames, games = :games WHERE objectId = :winnerId AND groupId = :gId";
         // get the winGames and games
-        List<Integer> winObj = getGroupObject(myRecord.winnerId, myRecord.groupId);
+        MyGroupObject winGO = getGroupObject(myRecord.winnerId, myRecord.groupId);
         Map<String, Object> paramsWin = new HashMap<>();
-        paramsWin.put("winGames", winObj.get(0)+1);
-        paramsWin.put("games", winObj.get(1)+1);
+        paramsWin.put("winGames", winGO.winGames+1);
+        paramsWin.put("games", winGO.games+1);
         paramsWin.put("winnerId", myRecord.winnerId);
         paramsWin.put("gId", myRecord.groupId);
         try
@@ -428,9 +447,9 @@ public class MyUserDao {
         // loser
         // update the new value to the group_object
         String sql1 = "UPDATE groupobject SET games = :games WHERE objectId = :loserId AND groupId = :gId";
-        List<Integer> loseObj = getGroupObject(myRecord.loserId, myRecord.groupId);
+        MyGroupObject loseGO = getGroupObject(myRecord.loserId, myRecord.groupId);
         Map<String, Object> paramsLose = new HashMap<>();
-        paramsLose.put("games", loseObj.get(1)+1);
+        paramsLose.put("games", loseGO.games+1);
         paramsLose.put("loserId", myRecord.loserId);
         paramsLose.put("gId", myRecord.groupId);
         try
@@ -441,19 +460,47 @@ public class MyUserDao {
         }
     }
 
-    //perhaps return an object will better
-    public List<Integer> getGroupObject(int objId, int gId){
-        // use to static winGames and games of an object in group
-        String sql = "SELECT winGames, games FROM groupobject WHERE objectId = :objectId AND groupId = :groupId";
-        Map<String, Object> params = new HashMap<>(); // MapSqlParameterSource params = new MapSqlParameterSource();
-        params.put("objectId", objId);
-        params.put("groupId", gId);
-        return namedParameterJdbcTemplate.queryForObject(sql, params, new RowMapper<List<Integer>>() {
-            @Override
-            public List<Integer> mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return Arrays.asList(rs.getInt("winGames"), rs.getInt("games"));
-            }
-        });
+    public void updateGroupObject_reVote(MyRecord myRecord){
+        // update the new value to the group_object
+        // winner
+        String sql = "UPDATE groupobject SET winGames = :winGames WHERE objectId = :winnerId AND groupId = :gId";
+        // get the winGames and games
+        MyGroupObject winGO = getGroupObject(myRecord.winnerId, myRecord.groupId);
+        Map<String, Object> paramsWin = new HashMap<>();
+        paramsWin.put("winGames", winGO.winGames+1);
+        paramsWin.put("winnerId", myRecord.winnerId);
+        paramsWin.put("gId", myRecord.groupId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, paramsWin);
+        }catch (DataAccessException e) {
+            log.error("Error update winner", e.getMessage());
+        }
+
+        // loser
+        // update the new value to the group_object
+        String sql1 = "UPDATE groupobject SET wiGames = :winGames WHERE objectId = :loserId AND groupId = :gId";
+        MyGroupObject loseGO = getGroupObject(myRecord.loserId, myRecord.groupId);
+        Map<String, Object> paramsLose = new HashMap<>();
+        paramsWin.put("winGames", loseGO.winGames-1);
+        paramsLose.put("loserId", myRecord.loserId);
+        paramsLose.put("gId", myRecord.groupId);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql1, paramsLose);
+        }catch (DataAccessException e){
+            log.error("Error update loser", e.getMessage());
+        }
+    }
+    
+//    calculate the win rate
+    public double winRateCounter(int objId, int gId){
+        MyGroupObject GO = getGroupObject(objId, gId);
+        return GO.calWinRate();
+    }
+
+    public void updateRank(MyRecord record){
+
     }
 
     public int addObject(MyObject myObject)
@@ -546,9 +593,8 @@ public class MyUserDao {
             }
         });
     }
-    public int winRateCounter(){
-        return 1;
-    }
+
+
 
     public Boolean getUserThumb(String user, int objectId){
         String sql = "SELECT rate FROM thumbs WHERE thumbs.user = :user AND objectId = :objectId";
