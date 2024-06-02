@@ -111,8 +111,8 @@ public class MyUser {
         return myUserDao.isRecordExist(record);
     }
 
-    public double calWinRate(int objId, int gId){
-        return myUserDao.winRateCounter(objId, gId);
+    public double calWinRate(int objId, String groupName){
+        return myUserDao.winRateCounter(objId, groupName);
     }
     public String addObject(MyObject object)
     {

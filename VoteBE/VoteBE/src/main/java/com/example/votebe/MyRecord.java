@@ -6,6 +6,5 @@ public class MyRecord
     public String UserName;
     public int winnerId;
     public int loserId;
-    public String group;
-    public int groupId;
+    public String groupName;
 }

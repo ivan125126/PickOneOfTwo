@@ -18,8 +18,6 @@ import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.xml.transform.Result;
-
 @Component
 public class MyUserDao {
 
@@ -71,7 +69,7 @@ public class MyUserDao {
         params.put("user", record.UserName);
         params.put("object1", record.winnerId);
         params.put("object2", record.loserId);
-        params.put("groupId", getGroupId(record.group));
+        params.put("groupId", getGroupId(record.groupName));
         try
         {
             Integer count = namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
@@ -382,7 +380,7 @@ public class MyUserDao {
         params.put("user", myRecord.UserName);
         params.put("winner", myRecord.winnerId);
         params.put("loser", myRecord.loserId);
-        params.put("groupId", getGroupId(myRecord.group));
+        params.put("groupId", getGroupId(myRecord.groupName));
         try
         {
             namedParameterJdbcTemplate.update(sql, params);
@@ -396,7 +394,7 @@ public class MyUserDao {
         params.put("user", myRecord.UserName);
         params.put("winner", myRecord.winnerId);
         params.put("loser", myRecord.loserId);
-        params.put("groupId", getGroupId(myRecord.group));
+        params.put("groupId", getGroupId(myRecord.groupName));
         try
         {
             namedParameterJdbcTemplate.update(sql, params);
@@ -406,7 +404,7 @@ public class MyUserDao {
     }
 
     public MyGroupObject getGroupObject(int objId, int gId){
-        String sql = "SELECT * FROM groupobject WHERE objectId = :objId, groupId = :gId";
+        String sql = "SELECT * FROM groupobject WHERE objectId = :objId AND groupId = :gId";
         Map<String, Object> params = new HashMap<>();
         params.put("objId", objId);
         params.put("gId", gId);
@@ -431,32 +429,34 @@ public class MyUserDao {
         // winner
         String sql = "UPDATE groupobject SET winGames = :winGames, games = :games WHERE objectId = :winnerId AND groupId = :gId";
         // get the winGames and games
-        MyGroupObject winGO = getGroupObject(myRecord.winnerId, myRecord.groupId);
+        MyGroupObject winGO = getGroupObject(myRecord.winnerId, getGroupId(myRecord.groupName));
         Map<String, Object> paramsWin = new HashMap<>();
         paramsWin.put("winGames", winGO.winGames+1);
         paramsWin.put("games", winGO.games+1);
         paramsWin.put("winnerId", myRecord.winnerId);
-        paramsWin.put("gId", myRecord.groupId);
+        paramsWin.put("gId", getGroupId(myRecord.groupName));
         try
         {
             namedParameterJdbcTemplate.update(sql, paramsWin);
         }catch (DataAccessException e) {
-            log.error("Error update winner", e.getMessage());
+            log.error("Error new winner\n" + e.getMessage());
         }
 
         // loser
         // update the new value to the group_object
         String sql1 = "UPDATE groupobject SET games = :games WHERE objectId = :loserId AND groupId = :gId";
-        MyGroupObject loseGO = getGroupObject(myRecord.loserId, myRecord.groupId);
+        MyGroupObject loseGO = getGroupObject(myRecord.loserId, getGroupId(myRecord.groupName));
+        System.out.println(myRecord.loserId);
+        System.out.println(loseGO.games);
         Map<String, Object> paramsLose = new HashMap<>();
         paramsLose.put("games", loseGO.games+1);
         paramsLose.put("loserId", myRecord.loserId);
-        paramsLose.put("gId", myRecord.groupId);
+        paramsLose.put("gId", getGroupId(myRecord.groupName));
         try
         {
             namedParameterJdbcTemplate.update(sql1, paramsLose);
         }catch (DataAccessException e){
-            log.error("Error update loser", e.getMessage());
+            log.error("Error new losern\n" + e.getMessage());
         }
     }
 
@@ -465,37 +465,37 @@ public class MyUserDao {
         // winner
         String sql = "UPDATE groupobject SET winGames = :winGames WHERE objectId = :winnerId AND groupId = :gId";
         // get the winGames and games
-        MyGroupObject winGO = getGroupObject(myRecord.winnerId, myRecord.groupId);
+        MyGroupObject winGO = getGroupObject(myRecord.winnerId, getGroupId(myRecord.groupName));
         Map<String, Object> paramsWin = new HashMap<>();
         paramsWin.put("winGames", winGO.winGames+1);
         paramsWin.put("winnerId", myRecord.winnerId);
-        paramsWin.put("gId", myRecord.groupId);
+        paramsWin.put("gId", getGroupId(myRecord.groupName));
         try
         {
             namedParameterJdbcTemplate.update(sql, paramsWin);
         }catch (DataAccessException e) {
-            log.error("Error update winner", e.getMessage());
+            log.error("Error update winner\n" + e.getMessage());
         }
 
         // loser
         // update the new value to the group_object
-        String sql1 = "UPDATE groupobject SET wiGames = :winGames WHERE objectId = :loserId AND groupId = :gId";
-        MyGroupObject loseGO = getGroupObject(myRecord.loserId, myRecord.groupId);
+        String sql1 = "UPDATE groupobject SET winGames = :winGames WHERE objectId = :loserId AND groupId = :gId";
+        MyGroupObject loseGO = getGroupObject(myRecord.loserId, getGroupId(myRecord.groupName));
         Map<String, Object> paramsLose = new HashMap<>();
-        paramsWin.put("winGames", loseGO.winGames-1);
+        paramsLose.put("winGames", loseGO.winGames-1);
         paramsLose.put("loserId", myRecord.loserId);
-        paramsLose.put("gId", myRecord.groupId);
+        paramsLose.put("gId", getGroupId(myRecord.groupName));
         try
         {
             namedParameterJdbcTemplate.update(sql1, paramsLose);
         }catch (DataAccessException e){
-            log.error("Error update loser", e.getMessage());
+            log.error("Error update loser\n" + e.getMessage());
         }
     }
     
 //    calculate the win rate
-    public double winRateCounter(int objId, int gId){
-        MyGroupObject GO = getGroupObject(objId, gId);
+    public double winRateCounter(int objId, String groupName){
+        MyGroupObject GO = getGroupObject(objId, getGroupId(groupName));
         return GO.calWinRate();
     }
 

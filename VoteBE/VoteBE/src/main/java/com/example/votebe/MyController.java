@@ -106,10 +106,17 @@ public class MyController
         return myUser.addGroup(myTagGroup.group, myTagGroup.tags);
     }
     @PostMapping("/winRate/{objectId}/{gruopId}")
-    public Double winRate(@PathVariable int objId, int gId){
-        return myUser.calWinRate(objId, gId);
+    public Double winRate(@PathVariable int objId, String groupName){
+        return myUser.calWinRate(objId, groupName);
     }
 
+    @PostMapping("/getRank")
+    public void getRank(){
+        // return
+        // picUrl
+        // objId
+        //
+    }
     // undo
     // @PostMapping("/thumbNotify")
 }
