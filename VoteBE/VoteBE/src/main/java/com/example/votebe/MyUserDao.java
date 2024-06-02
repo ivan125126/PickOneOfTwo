@@ -456,7 +456,7 @@ public class MyUserDao {
         {
             namedParameterJdbcTemplate.update(sql1, paramsLose);
         }catch (DataAccessException e){
-            log.error("Error new losern\n" + e.getMessage());
+            log.error("Error new loser\n" + e.getMessage());
         }
     }
 

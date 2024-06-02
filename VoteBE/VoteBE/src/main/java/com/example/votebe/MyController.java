@@ -105,13 +105,13 @@ public class MyController
     public Integer addGroup(@RequestBody MyTagGroup myTagGroup){
         return myUser.addGroup(myTagGroup.group, myTagGroup.tags);
     }
-    @PostMapping("/winRate/{objectId}/{gruopId}")
-    public Double winRate(@PathVariable int objId, String groupName){
-        return myUser.calWinRate(objId, groupName);
+    @PostMapping("/winRate/{objectId}/{groupName}")
+    public Double winRate(@PathVariable int objectId, String groupName){
+        return myUser.calWinRate(objectId, groupName);
     }
 
-    @PostMapping("/getRank")
-    public void getRank(){
+    @PostMapping("/getRank/{groupName}/{rankInGroup}")
+    public void getRank(@PathVariable int rankInGroup, String groupName){
         // return
         // picUrl
         // objId
