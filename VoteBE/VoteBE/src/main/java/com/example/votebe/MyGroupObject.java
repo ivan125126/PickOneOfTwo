@@ -7,6 +7,6 @@ public class MyGroupObject {
     public int games;
     public int rankInGroup;
     public double calWinRate(){
-        return (winGames/games) * 100;
+        return (((double) winGames)/(double) games) * 100;
     }
 }
