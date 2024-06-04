@@ -22,8 +22,6 @@ public class VotePanel extends JPanel
     LikePicture DisLike2 = new LikePicture();
     MainFrame mainFrame;
     String selectedType;
-    String U1 = "https://all.web.img.acsta.net/img/91/41/91412fbc0ed5d0bf8962e9d9523da195.jpg";
-    String U2 = "https://lumiere-a.akamaihd.net/v1/images/p_luca_21670_3c13c611.jpeg";
     JLabel Picture1 = new JLabel();
     JLabel Picture2 = new JLabel();
     List<ItemData> ItemDateList;

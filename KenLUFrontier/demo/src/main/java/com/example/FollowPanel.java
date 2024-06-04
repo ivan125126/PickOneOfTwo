@@ -166,20 +166,20 @@ public class FollowPanel extends JPanel
         Client client = new Client();
         client.GetFollowing(mainFrame.Username);
         client.Access("");
-        System.out.println(client.Status);
         Type FollowList = new TypeToken<List<GetRank>>() {}.getType();
         FollowedList = gson.fromJson(client.Status, FollowList);
         ItemNum = FollowedList.size();
+        System.out.println(FollowedList);
 
         if(ItemNum >= Page * 4 - 3) ShowPicture(FollowedList.get((Page - 1) * 4).httpString , LUPicture);
 
-        if(ItemNum >= Page * 4 - 2) ShowPicture(FollowedList.get(Page * 4 - 1).httpString, RUPicture);
+        if(ItemNum >= Page * 4 - 2) ShowPicture(FollowedList.get(Page * 4 - 3).httpString, RUPicture);
         else RUPicture.setVisible(false);
 
         if(ItemNum >= Page * 4 - 1) ShowPicture(FollowedList.get(Page * 4 - 2).httpString, LDPicture);
         else LDPicture.setVisible(false);
 
-        if(ItemNum >= Page * 4) ShowPicture(FollowedList.get(Page * 4 - 3).httpString, RDPicture);
+        if(ItemNum >= Page * 4) ShowPicture(FollowedList.get(Page * 4 - 1).httpString, RDPicture);
         else RDPicture.setVisible(false);
 
         if(ItemNum >= Page * 4 + 1) NextPage.setVisible(true);

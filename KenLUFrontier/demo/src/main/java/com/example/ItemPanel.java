@@ -164,7 +164,7 @@ public class ItemPanel  extends JPanel
         });
 
         VoteNum.setBounds(310 , 490 , 150 , 30);
-        VoteNum.setText("Vote : " + Integer.toString(vwr.gamesPlayed)); //6
+        VoteNum.setText("Games : " + Integer.toString(vwr.gamesPlayed)); //6
         VoteNum.setFont(new Font("Arial", Font.PLAIN, 24));
         add(VoteNum);
 
