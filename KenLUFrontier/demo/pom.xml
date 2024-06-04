@@ -49,14 +49,6 @@
       <artifactId>javafx-fxml</artifactId>
       <version>19.0.2</version>
     </dependency>
-
-    <dependency>
-      <groupId>tray</groupId>
-      <artifactId>tray</artifactId>
-      <version>1.0.2</version>
-      <scope>system</scope>
-      <systemPath>C:\Users\afatf\Desktop\JAVA\PM2.0\demo\src\main\java\com\example\TrayNotification.jar</systemPath>
-    </dependency>
   </dependencies>
 
   <build>
