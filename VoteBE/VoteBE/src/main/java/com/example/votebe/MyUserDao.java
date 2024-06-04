@@ -257,7 +257,7 @@ public class MyUserDao {
         return namedParameterJdbcTemplate.query(sql, params, new  RowMapper<Integer>() {
             public Integer mapRow(ResultSet rs, int rowNum) throws SQLException
             {
-                return rs.getInt("objId");
+                return rs.getInt("object");
             }
         });
     }
@@ -713,6 +713,22 @@ public class MyUserDao {
         } catch (EmptyResultDataAccessException e) {
             return -1;
         }
+    }
+
+    public Boolean isFollowing(String user, Integer objectId)
+    {
+        String sql = "SELECT COUNT(*) FROM follow WHERE follow.user = :user AND object = :objectId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", user);
+        params.put("objectId", objectId);
+        try
+        {
+            Integer count = namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            return count != null && count > 0;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+
     }
 }
 

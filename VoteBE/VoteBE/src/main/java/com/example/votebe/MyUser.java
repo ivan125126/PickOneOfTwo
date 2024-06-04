@@ -69,14 +69,20 @@ public class MyUser {
 
     // follow fcn
     public String follow(MyFollow F) {
+        if(isFollowing(F.account, F.objectId)){
+            return "already following";
+        }
         myUserDao.addFollow(F.account, F.objectId);
 
         return F.account + " Following " + F.objectId + " ><";
     }
 
     public String unFollow(MyFollow F) {
-        myUserDao.unFollow(F.account, F.objectId);
-        return F.account + " Unfollowing " + F.objectId + " TT";
+        if(isFollowing(F.account, F.objectId)){
+            myUserDao.unFollow(F.account, F.objectId);
+            return F.account + " Unfollowing " + F.objectId + " TT";
+        }
+        return "not following";
     }
 
     public String addThumbs(MyThumbs T){
@@ -113,6 +119,15 @@ public class MyUser {
         return myUserDao.isRecordExist(record);
     }
 
+    public List<MyObject> getFollowingObjects(String account)
+    {
+        List<Integer> objectIds = myUserDao.getFollowingObjects(account);
+        List<MyObject> objects = new ArrayList<>();
+        for(Integer objectId : objectIds){
+            objects.add(getObjectById(objectId));
+        }
+        return objects;
+    }
     public WinRateAndGames calWinRate(int objId, String groupName){
         return myUserDao.winRateCounter(objId, groupName);
     }
@@ -215,5 +230,9 @@ public class MyUser {
     public List<String> getGroupsOfObject(Integer objectId)
     {
         return myUserDao.getGroupsOfObject(objectId);
+    }
+
+    public Boolean isFollowing(String user, Integer objectId){
+        return myUserDao.isFollowing(user, objectId);
     }
 }

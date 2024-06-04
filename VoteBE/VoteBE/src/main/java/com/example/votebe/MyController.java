@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -43,15 +44,18 @@ public class MyController
     {
         return this.myUser.getCompareSet(group);
     }
+
     //追蹤，傳入account(String), objectId(int), {account} Following {objectId}><
-    @PostMapping("/follow")
-    public String follow(@RequestBody MyFollow myFollow){
-        return this.myUser.follow(myFollow);
+    @RequestMapping("/follow/{user}/{objectId}")
+    public String follow(@PathVariable String user, @PathVariable Integer objectId)
+    {
+        return this.myUser.follow(new MyFollow(user, objectId));
     }
     //取消追蹤，同上
-    @PostMapping("/unFollow")
-    public String unFollow(@RequestBody MyFollow myUnFollow){
-        return this.myUser.unFollow(myUnFollow);
+    @RequestMapping("/unfollow/{user}/{objectId}")
+    public String unfollow(@PathVariable String user, @PathVariable Integer objectId)
+    {
+        return this.myUser.unFollow(new MyFollow(user, objectId));
     }
     //按讚、按倒讚或更改讚，傳入user(String), objectId(int), rate(bool), rate為TRUE是讚,false是倒讚，回傳{user} press Thumbs rate to {objectId}
     @PostMapping("/updateThumbs")
@@ -109,6 +113,7 @@ public class MyController
     }
     @RequestMapping("/winRate/{objectId}/{groupName}")
     public WinRateAndGames winRate(@PathVariable Integer objectId, @PathVariable String groupName){
+        log.warn("objectId: {}, groupName: {}", objectId, groupName);
         return myUser.calWinRate(objectId, groupName);
     }
 
@@ -117,6 +122,27 @@ public class MyController
         //log.error(rankInGroup+groupName);
         MyObject result = myUser.getObjectOfRank(rankInGroup, groupName);
         return ("{\n\"httpString\" : \""+result.imageURL+ "\",\n" + "\"IDNumber\" : " +"\""+ result.id+"\"\n}");
+    }
+    @RequestMapping("/notification")
+    public String notification(){
+        return "Spy x Family Season 2 has risen to No. 1 in Animate’s rankings";
+    }
+
+    @RequestMapping("/following/{user}")
+    public List<ImageAndId> following(@PathVariable String user)
+    {
+        List<MyObject> objects = myUser.getFollowingObjects(user);
+        List<ImageAndId> result = new ArrayList<>();
+        for (MyObject myObject : objects){
+            result.add(new ImageAndId(myObject.imageURL, myObject.id));
+        }
+        return result;
+    }
+
+    @RequestMapping("/isFollowing/{user}/{objectId}")
+    public Boolean isFollowing(@PathVariable String user, @PathVariable Integer objectId)
+    {
+        return myUser.isFollowing(user, objectId);
     }
     // undo
     // @PostMapping("/thumbNotify")
