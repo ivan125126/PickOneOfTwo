@@ -509,9 +509,12 @@ public class MyUserDao {
     }
     
 //    calculate the win rate
-    public double winRateCounter(int objId, String groupName){
+    public WinRateAndGames winRateCounter(int objId, String groupName){
+        WinRateAndGames winRateAndGames = new WinRateAndGames();
         MyGroupObject GO = getGroupObject(objId, getGroupId(groupName));
-        return GO.calWinRate();
+        winRateAndGames.winRate = GO.calWinRate();
+        winRateAndGames.gamesPlayed = GO.games;
+        return winRateAndGames;
     }
 
     public int addObject(MyObject myObject)

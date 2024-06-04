@@ -107,8 +107,8 @@ public class MyController
     public Integer addGroup(@RequestBody MyTagGroup myTagGroup){
         return myUser.addGroup(myTagGroup.group, myTagGroup.tags);
     }
-    @PostMapping("/winRate/{objectId}/{groupName}")
-    public Double winRate(@PathVariable int objectId, @PathVariable String groupName){
+    @RequestMapping("/winRate/{objectId}/{groupName}")
+    public WinRateAndGames winRate(@PathVariable Integer objectId, @PathVariable String groupName){
         return myUser.calWinRate(objectId, groupName);
     }
 
