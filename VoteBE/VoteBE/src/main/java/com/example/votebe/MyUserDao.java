@@ -129,7 +129,7 @@ public class MyUserDao {
                 "WHERE o.id = :id";
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
-        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<MyObject>()
+        return namedParameterJdbcTemplate.queryForObject(sql, params, new RowMapper<MyObject>()
         {
             public MyObject mapRow(ResultSet rs, int rowNum) throws SQLException {
                 MyObject myObject = new MyObject();
@@ -140,7 +140,7 @@ public class MyUserDao {
                 myObject.imageURL = rs.getString("imageURL");
                 return myObject;
             }
-        }).get(0);
+        });
     }
 
     public List<Integer> getObjectsWithAllTagsInGroup(int groupId)
@@ -185,7 +185,7 @@ public class MyUserDao {
     {
         String sql = "SELECT ot.tagId " +
                 "FROM objectTag ot " +
-                "WHERE ot.objectId = :objectId ";
+                "WHERE ot.objId = :objectId ";
         Map<String, Object> params = new HashMap<>();
         params.put("objectId", objectId);
 
@@ -208,6 +208,21 @@ public class MyUserDao {
             public String mapRow(ResultSet rs, int rowNum) throws SQLException
             {
                 return rs.getString("name");
+            }
+        });
+    }
+    public List<String> getGroupsOfObject(Integer objectId)
+    {
+        String sql = "SELECT groupName " +
+                "FROM groupObject JOIN myGroup ON myGroup.id = groupObject.groupId " +
+                "WHERE groupObject.objectId = :objectId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+
+        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<String>() {
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                return rs.getString("groupName");
             }
         });
     }
@@ -267,7 +282,7 @@ public class MyUserDao {
     }
 
     public Integer creatGroupObject(Integer objectId, Integer groupId){
-        String sql = "INSERT INTO groupObject(objectId, groupId, winGames, games) VALUES (:objectId, :groupId, 0, 0)";
+        String sql = "INSERT INTO groupObject(objectId, groupId, winGames, games) VALUES (:objectId, :groupId, 0, 1)";
         Map<String, Object> params = new HashMap<>();
         params.put("objectId", objectId);
         params.put("groupId", groupId);
@@ -499,10 +514,6 @@ public class MyUserDao {
         return GO.calWinRate();
     }
 
-    public void updateRank(MyRecord record){
-
-    }
-
     public int addObject(MyObject myObject)
     {
         String sql = "INSERT INTO object(objectName, objectInformation, objectType, imageURL) VALUES (:name, :Info, :type, :imageURL)";
@@ -637,6 +648,68 @@ public class MyUserDao {
             log.error(e.getMessage());
         }
         return null;
+    }
+    public List<MyGroupObject> getRankedGroupObjectsOfGroup(Integer groupId){
+        String sql = "SELECT * FROM groupobject WHERE groupId = :gId ORDER BY (winGames/games)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("gId", groupId);
+        return namedParameterJdbcTemplate.query(sql, params, new RowMapper<MyGroupObject>(){
+            public MyGroupObject mapRow(ResultSet rs, int rowNum) throws SQLException
+            {
+                MyGroupObject GO = new MyGroupObject();
+                GO.objId = rs.getInt("objectId");
+                GO.gId = rs.getInt("groupId");
+                GO.winGames = rs.getInt("winGames");
+                GO.games = rs.getInt("games");
+                GO.rankInGroup = rs.getInt("rankInGroup");
+                return GO;
+            }
+        });
+    }
+    public Integer updateRank(Integer objectId, Integer groupId, Integer rank){
+        String sql = "UPDATE groupobject SET rankInGroup = :rank WHERE objectId = :objectId AND groupId = :groupId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+        params.put("groupId", groupId);
+        params.put("rank",rank);
+        try
+        {
+            namedParameterJdbcTemplate.update(sql, params);
+            return 1;
+        }catch (DataAccessException e){
+            log.error(e.getMessage());
+            return -1;
+        }
+
+    }
+
+    public Integer getObjectOfRank(int rankInGroup, Integer groupId)
+    {
+        String sql = "SELECT objectId FROM groupobject WHERE groupId = :gId AND rankInGroup = :rank";
+        Map<String, Object> params = new HashMap<>();
+        params.put("gId", groupId);
+        params.put("rank", rankInGroup);
+        return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+    }
+    public Integer getThumbsUp(Integer objectId){
+        String sql = "SELECT COUNT(*) FROM thumbs WHERE objectId = :objectId AND rate = 1";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+        try {
+            return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            return -1;
+        }
+    }
+    public Integer getThumbsDown(Integer objectId){
+        String sql = "SELECT COUNT(*) FROM thumbs WHERE objectId = :objectId AND rate = 0";
+        Map<String, Object> params = new HashMap<>();
+        params.put("objectId", objectId);
+        try {
+            return namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            return -1;
+        }
     }
 }
 

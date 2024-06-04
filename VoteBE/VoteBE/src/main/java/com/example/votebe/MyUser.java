@@ -3,13 +3,14 @@ package com.example.votebe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Component
 public class MyUser {
-    String account = null;
-    String password = null;
+    public String account = null;
+    public String password = null;
 
     @Autowired
     private MyUserDao myUserDao;
@@ -98,12 +99,13 @@ public class MyUser {
         if(checkRecord(record)) {
             myUserDao.updateChoiceResult(record);
             myUserDao.updateGroupObject_reVote(record);
-            // undo 
+            updateRank(myUserDao.getRankedGroupObjectsOfGroup(myUserDao.getGroupId(record.groupName)));
             return "update";
         }
         else{
             myUserDao.addChoiceResult(record);
             myUserDao.updateGroupObject_new(record);
+            updateRank(myUserDao.getRankedGroupObjectsOfGroup(myUserDao.getGroupId(record.groupName)));
             return "add";
         }
     }
@@ -141,7 +143,18 @@ public class MyUser {
     }
     public MyObject getObjectById(Integer objectId)
     {
-        return myUserDao.getObjectById(objectId);
+        MyObject object = myUserDao.getObjectById(objectId);
+        object.thumbsUp = myUserDao.getThumbsUp(objectId);
+        object.thumbsDown = myUserDao.getThumbsDown(objectId);
+        return object;
+    }
+    public List<String> getTagsOfObject(Integer objectId){
+        List<String> result = new ArrayList<>();
+        List<Integer> tagsId = myUserDao.getTagsIdOfObject(objectId);
+        for (Integer tagId : tagsId){
+            result.add(myUserDao.getTagById(tagId));
+        }
+        return result;
     }
     public Integer getUserThumb(MyThumbs myThumbs){
         if(myUserDao.checkThumbs(myThumbs))
@@ -183,5 +196,24 @@ public class MyUser {
     public List<String> getGroups()
     {
         return myUserDao.getGroups();
+    }
+    public void updateRank(List<MyGroupObject> myGroupObjects){
+        for(MyGroupObject myGroupObject : myGroupObjects){
+            if(myGroupObjects.indexOf(myGroupObject)+1 != myGroupObject.rankInGroup)
+            {
+                System.out.println(myGroupObject.objId+"."+myGroupObject.rankInGroup+"->"+myGroupObjects.indexOf(myGroupObject));
+                myUserDao.updateRank(myGroupObject.objId, myGroupObject.gId, myGroupObjects.indexOf(myGroupObject)+1);
+            }
+        }
+    }
+
+    public MyObject getObjectOfRank(int rankInGroup, String groupName)
+    {
+        return myUserDao.getObjectById(myUserDao.getObjectOfRank(rankInGroup, myUserDao.getGroupId(groupName)));
+    }
+
+    public List<String> getGroupsOfObject(Integer objectId)
+    {
+        return myUserDao.getGroupsOfObject(objectId);
     }
 }
